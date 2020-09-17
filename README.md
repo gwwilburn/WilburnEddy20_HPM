@@ -1,21 +1,21 @@
 # HPM Proof of Principle Code
 
-This is the software for a proof of principle hidden Potts model implementation. We describe hidden Potts Models and the performance of this method in RNA remote homology search here: (https://www.biorxiv.org/content/biorxiv/early/2020/06/23/2020.06.23.168153.full.pdf)
+This is software for a proof of principle hidden Potts model implementation. We describe hidden Potts Models and the performance of this method in RNA remote homology search here: https://www.biorxiv.org/content/biorxiv/early/2020/06/23/2020.06.23.168153.full.pdf
 
 
 
 ## Contents and Dependencies:
 
 Here is what is included.
-* ./HPMHomology/ : code to build HPMs, align and score sequences using HPMs
-* ./CMIS/ : code to score and align sequences with Infernal CMs using importance sampling
-* ./data/ : benchmark datasets for tRNA, Twister ribozyme, and SAM riboswitch benchmarks
+* ./HPMHomology/ : code to build HPMs, align and score sequences using HPMs.
+* ./CMIS/ : code to score and align sequences with Infernal CMs using importance sampling.
+* ./data/ : benchmark datasets for tRNA, Twister ribozyme, and SAM riboswitch benchmarks.
 * ./TwisterBenchmark_commands.txt: instructions for how to recreate the Twister ribozyme benchmark results.
 * ./tRNABenchmark_commands.txt: instructions for how to recreate the tRNA benchmark results.
 * ./SAMBenchmark_commands.txt: instructions for how to recreate the SAM riboswitch benchmark results.
 * ./SimulationControl_commands.txt: instructions for how to create the synthetic sequence positive control results.
-* ./clone.sh: bash script for cloning external dependencies from GitHub
-* ./compile.sh: bash script for compiling
+* ./clone.sh : bash script for cloning external dependencies from GitHub.
+* ./compile.sh : bash script for compiling.
 
 Here are the external dependencies, which are not included but needed to run the code.
 * ./hmmer4/ : HMMER version 4 (in development) (must be cloned from GitHub, see below)
