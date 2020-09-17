@@ -1,0 +1,103 @@
+I Creating synthetic sequences
+
+1. Emitting 1000 aligned sequences with MCMC
+> ./HPMHomology/src/hpmemit --Niter 5000 --burnin data/Twister/SyntheticAlignments/Twister_synthetic_burnin.csv -N 1000 -L 10 data/Twister/Gremlin/Twister_train_Gremlin.hpm data/Twister/SyntheticAlignments/Twister_synthetic_unnanotated.sto
+
+2. Dealigning the synthetic sequences
+> ./hmmer4/easel/miniapps/esl-reformat fasta  data/Twister/SyntheticAlignments/Twister_synthetic_unnanotated.sto > data/Twister/SyntheticSequences/Twister_synthetic.fa
+
+3. Adding SS_cons line to synthetic alignment (courtesy of Eric Nawrocki)
+> ./esl-reformat pfam data/Twister/SyntheticAlignments/Twister_synthetic_unnanotated.sto > data/Twister/SyntheticAlignments/Twister_synthetic_unnanotated.pfam
+>
+> ./infernal-1.1.3/easel/miniapps/esl-alimask --rf-is-mask data/Twister/TrainAlignments/Twister_train.sto | ./infernal-1.1.3/easel/miniapps/esl-reformat pfam - | grep "^\#=GC SS_cons"  | awk '{ print $3 }' > data/Twister/TrainAlignments/Twister_train.sscons.txt
+>
+> perl ./HPMHomology/src/ali-pfam-add-rflen-sscons.pl data/Twister/SyntheticAlignments/Twister_synthetic_unnanotated.pfam  data/Twister/TrainAlignments/Twister_train.sscons.txt > data/Twister/SyntheticAlignments/Twister_synthetic.sto
+
+4. Trimming synthetic MSA to consensus sites (for Potts model training)
+> ./hmmer4/easel/miniapps/esl-alimask --rf-is-mask data/Twister/SyntheticAlignments/Twister_synthetic.sto > data/Twister/SyntheticAlignments/Twister_synthetic_consensus.sto
+
+5. Converting the consensus-trimmed MSA to aligned FASTA format (for Potts Model training)
+> ./hmmer4/easel/miniapps/esl-reformat afa data/Twister/SyntheticAlignments/Twister_synthetic_consensus.sto > data/Twister/SyntheticAlignments/Twister_synthetic_consensus.afa
+
+
+II Model training
+
+1. Training HMMER model on synthetic MSA
+> ./infernal-1.1.3/hmmer/src/hmmbuild --hand --enone data/Twister/HMMER/Twister_synthetic_HMMER.hmm data/Twister/SyntheticAlignments/Twister_synthetic.sto
+
+2. Training HMMER4 model on synthetic MSA (for importance sampling)
+> ./hmmer4/nwo/hmmer build --hand data/Twister/SyntheticAlignments/Twister_synthetic.sto data/Twister/HMMER/Twister_synthetic_HMMER4.hmm
+
+3. Training Infernal CM on synthetic MSA
+> ./infernal-1.1.3/src/cmbuild --iflank --hand --enone data/Twister/Infernal/Twister_synthetic_Infernal.cm data/Twister/SyntheticAlignments/Twister_synthetic.sto
+
+4. Calibrating infernal model
+./infernal-1.1.3/src/cmcalibrate data/Twister/Infernal/Twister_synthetic_Infernal.cm
+
+5. Training Gremlin Potts model on synthetic MSA
+> ./HPMHomology/src/gremlin_h2_henikoff -i data/Twister/SyntheticAlignments/Twister_synthetic_consensus.afa -o data/Twister/Gremlin/Twister_synthetic_Gremlin_contacts.out -mrf_o data/Twister/Gremlin/Twister_synthetic_Gremlin.potts -only_v 0 -alphabet rna
+
+6. Building Gremlin HPM
+> ./HPMHomology/src/hpmbuild --rna data/Twister/Gremlin/Twister_synthetic_Gremlin.hpm data/Twister/HMMER/Twister_synthetic_HMMER.hmm data/Twister/Gremlin/Twister_synthetic_Gremlin.potts
+
+7. Training Gremlin No ekl Potts model on synthetic MSA
+> ./HPMHomology/src/gremlin_h2_henikoff -i data/Twister/SyntheticAlignments/Twister_synthetic_consensus.afa -o foo.out -mrf_o data/Twister/Gremlin/Twister_synthetic_GremlinNoekl.potts -only_v 1 -alphabet rna
+
+8. Building Gremlin no ekl HPM
+> ./HPMHomology/src/hpmbuild --rna data/Twister/Gremlin/Twister_synthetic_GremlinNoekl.hpm data/Twister/HMMER/Twister_synthetic_HMMER.hmm data/Twister/Gremlin/Twister_synthetic_GremlinNoekl.potts
+
+9. Training masked nested-only HPM on synthetic HPM
+> ./HPMHomology/src/hpmbuild_masked --rna --weight data/Twister/MLMasked/Twister_synthetic_MLMasked_nested.hpm data/Twister/HMMER/Twister_synthetic_HMMER.hmm data/Twister/SyntheticAlignments/Twister_synthetic.sto
+
+10. Training masked nested+pseudoknotted (pknot) HPM on synthetic MSA
+> ./HPMHomology/src/hpmbuild_masked --rna --weight --pknot data/Twister/MLMasked/Twister_synthetic_MLMasked_pknot.hpm data/Twister/HMMER/Twister_synthetic_HMMER.hmm data/Twister/SyntheticAlignments/Twister_synthetic.sto
+
+III (Re-)Alignment of synthetic sequences with models.
+
+1. HMMER
+
+A. Aligning synthetic sequences with HMMER
+> ./HPMHomology/src/hmmalign_uniglocal --rna data/Twister/HMMER/Twister_synthetic_HMMER.hmm data/Twister/SyntheticSequences/Twister_synthetic.fa data/Twister/HMMER/Twister_HMMER_synthetic_synthetic.sto
+
+B. Calculating HMMER alignment accuracy
+> ./infernal-1.1.3/easel/miniapps/esl-compalign data/Twister/SyntheticAlignments/Twister_synthetic.sto data/Twister/HMMER/Twister_HMMER_synthetic_synthetic.sto
+
+2. Infernal
+
+A. Aligning synthetic sequences with Infernal
+> ./infernal-1.1.3/src/cmalign -g --notrunc data/Twister/Infernal/Twister_synthetic_Infernal.cm data/Twister/SyntheticSequences/Twister_synthetic.fa > data/Twister/Infernal/Twister_Infernal_synthetic_synthetic.sto
+
+B. Calculating Infernal alignment accuracy
+> ./infernal-1.1.3/easel/miniapps/esl-compalign data/Twister/SyntheticAlignments/Twister_synthetic.sto data/Twister/Infernal/Twister_Infernal_synthetic_synthetic.sto
+
+3. Gremlin HPM
+
+A. Aligning synthetic sequences with the Gremlin HPM
+> ./HPMHomology/src/hpmscoreIS --rna -R 1000000 -A data/Twister/Gremlin/Twister_synthetic_synthetic_Gremlin.sto data/Twister/Gremlin/Twister_synthetic_Gremlin.hpm data/Twister/HMMER/Twister_synthetic_HMMER4.hmm data/Twister/SyntheticSequences/Twister_synthetic.fa data/Twister/Gremlin/Twister_synthetic_synthetic_Gremlin.csv
+
+B. Calculating Gremlin HPM alignment accuracy
+> ./infernal-1.1.3/easel/miniapps/esl-compalign data/Twister/SyntheticAlignments/Twister_synthetic.sto data/Twister/Gremlin/Twister_synthetic_synthetic_Gremlin.sto
+
+4. Gremlin no ekl HPM
+
+A. Aligning synthetic sequences with the Gremlin no ekl HPM
+> ./HPMHomology/src/hpmscoreIS --rna -R 1000000 -A data/Twister/Gremlin/Twister_synthetic_synthetic_GremlinNoekl.sto data/Twister/Gremlin/Twister_synthetic_GremlinNoekl.hpm data/Twister/HMMER/Twister_synthetic_HMMER4.hmm data/Twister/SyntheticSequences/Twister_synthetic.fa data/Twister/Gremlin/Twister_synthetic_synthetic_GremlinNoekl.csv
+
+B. Calculating Gremlin no ekl HPM alignment accuracy
+> ./infernal-1.1.3/easel/miniapps/esl-compalign data/Twister/SyntheticAlignments/Twister_synthetic.sto data/Twister/Gremlin/Twister_synthetic_synthetic_GremlinNoekl.sto
+
+5. Masked nested-only HPM
+
+A. Aligning synthetic sequences with the masked nested-only HPM
+> ./HPMHomology/src/hpmscoreIS --rna -R 1000000 -A data/Twister/MLMasked/Twister_synthetic_synthetic_MLMasked_nested.sto data/Twister/MLMasked/Twister_synthetic_MLMasked_nested.hpm data/Twister/HMMER/Twister_synthetic_HMMER4.hmm data/Twister/SyntheticSequences/Twister_synthetic.fa data/Twister/MLMasked/Twister_synthetic_synthetic_MLMasked_nested.csv
+
+B. Calculating masked nested-only HPM alignment accuracy
+> ./infernal-1.1.3/easel/miniapps/esl-compalign data/Twister/SyntheticAlignments/Twister_synthetic.sto  data/Twister/MLMasked/Twister_synthetic_synthetic_MLMasked_nested.sto
+
+6. Masked nested+pknot HPM
+
+A. Aligning synthetic sequences with the masked nested+pseudoknot HPM
+> ./HPMHomology/src/hpmscoreIS --rna -R 1000000 -A data/Twister/MLMasked/Twister_synthetic_synthetic_MLMasked_pknot.sto data/Twister/MLMasked/Twister_synthetic_MLMasked_pknot.hpm data/Twister/HMMER/Twister_synthetic_HMMER4.hmm data/Twister/SyntheticSequences/Twister_synthetic.fa data/Twister/MLMasked/Twister_synthetic_synthetic_MLMasked_pknot.csv
+
+B. Calculating masked nested+pknot HPM alignment accuracy
+> ./infernal-1.1.3/easel/miniapps/esl-compalign data/Twister/SyntheticAlignments/Twister_synthetic.sto  data/Twister/MLMasked/Twister_synthetic_synthetic_MLMasked_pknot.sto
