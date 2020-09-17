@@ -1,0 +1,13 @@
+CMIS: scoring sequences with Infernal CM's via importance sampling.
+
+dependences:
+- Infernal version 1.1.3, in ../infernal-1.1.3
+- HMMER4, in ../hmmer4
+
+To install:
+
+- follow instructions to install Infernal
+- follow instructions to install HMMER4
+- within this directory:
+> cd src
+> make
