@@ -1,0 +1,88 @@
+# STOCKHOLM 1.0
+#=GF ID twister-P1
+#=GF DE type-P1 twister ribozyme
+
+#=GS ASHM485B_GOZG4CW03FNZVW/391-307         WT 0.95
+#=GS ASHM485B_GQ8TDHF02IQ3FH/269-185         WT 0.97
+#=GS TB03JUN2009E__Contig_78708/191-99       WT 0.93
+#=GS ASHM485B_GQ8TDHF02F9DJU/309-228         WT 0.81
+#=GS SwRhRL2b_contig_3001774/279-219         WT 1.05
+#=GS RUMENNODE_2846306_1/51290-51386         WT 1.70
+#=GS SwBSRL2_contig_9460645/1680-1580        WT 1.13
+#=GS scaffold27953_1_MH0009/8240-8318        WT 0.89
+#=GS ASHM485B_GQ8TDHF02IP8ND/61-137          WT 1.16
+#=GS GYQO9XB02HOH87/368-309                  WT 1.02
+#=GS 4443754.3.17435/500-410                 WT 0.94
+#=GS ASMM170b_GM97KZC01AYBJA/163-258         WT 1.09
+#=GS SRR014584.94163/133-201                 WT 0.87
+#=GS scaffold52668_1_O2.UC-22/255-347        WT 0.99
+#=GS JCVI_SCAF_1096627451301/1288-1218       WT 1.00
+#=GS ASHM485B_GQ8TDHF02JLGHV/207-148         WT 1.00
+#=GS NC_009746.1/4371-4433                   WT 1.14
+#=GS NZ_ABGO01000052.1/11683-11594           WT 1.06
+#=GS SwRhRL2b_contig_1789411/56325-56231     WT 1.03
+#=GS ASMM170b_GJFD58A01C3S98/272-345         WT 1.57
+#=GS RUMENNODE_4329557_1/14799-14867         WT 0.73
+#=GS SRS013476_C3081802/1415-1305            WT 1.17
+#=GS SRS015797_C2623035/722-621              WT 0.97
+#=GS SRR014584.142444/75-3                   WT 0.95
+#=GS ASMM170b_GM97KZC01CV9KT/347-403         WT 0.93
+#=GS SRS011271_WUGC_scaffold_37363/6725-6664 WT 0.94
+#=GS scaffold72334_1_MH0025/1408-1473        WT 1.07
+#=GS SRS052027_LANL_scaffold_25557/2473-2550 WT 1.01
+#=GS SRS019219_WUGC_scaffold_74142/4071-3990 WT 1.01
+#=GS ASLM20b_GJMWM0N02F51JQ/290-211          WT 0.77
+#=GS 4443754.3.34476/38-131                  WT 0.88
+#=GS 2013431667/372-295                      WT 0.85
+#=GS SRS052227_C2927685/4092-4020            WT 0.96
+#=GS SRS062544_C2989971/992-911              WT 0.93
+#=GS 4443754.3.35548/220-150                 WT 0.92
+#=GS GQKUMWE02FP3PF/168-91                   WT 0.78
+#=GS ASMM170b_contig02591/623-712            WT 1.00
+#=GS SRS043411_WUGC_scaffold_17180/295-360   WT 0.88
+#=GS ASHM485B_GI4DNEO01C4OIR/4-66            WT 0.97
+#=GS scaffold26425_2_MH0084/99-161           WT 0.98
+
+ASHM485B_GOZG4CW03FNZVW/391-307         ..agauaucggaguggguuuuauauuuaauGCACUAAUGUAGC-------...........UCAGA.................------CCUGUGACAAGCCAAG...............GCUAGaa.............aaaUACAGAGUC.GUGC
+ASHM485B_GQ8TDHF02IQ3FH/269-185         ..gggagcgagggugucagccccuccucccGCCGUAAAGCCAC-------...........UAUGA.................C-----CGGGUUGCAAGUCCCG...............GCUGCga..............uaGGCUGAGCA.CGGU
+TB03JUN2009E__Contig_78708/191-99       ..............................UCUGUAACCCCACCACCGUGgacauccuggcAGGGAuaauggccaggaugaucAUGGUGGAGGUCCAAAGUCCUC...............AAAAG..................AGGGGAUGG.CAGA
+ASHM485B_GQ8TDHF02F9DJU/309-228         .....auaaccgcaccuuaaugccuguuauGUCGUAAUGCAGC-------...........CGUUG.................C-----CACGUGCCAAGUCGUG...............GAUUAga..............aaUGCAGAGGC.GGAA
+SwRhRL2b_contig_3001774/279-219         ------------------------------GGUGUAAUGCGACUCGCU--...........CACAG.................-AGCGACAGGUUCACAGUCCU-...............ACAAA..................CGCAGAUGA.CACC
+RUMENNODE_2846306_1/51290-51386         ..............................AGCUUAAUAC-AGGUAGAUAagc....aagcAAGGUgcg...........gcuAUCUACACGGUCCCAACUCCGUaaag......guuagAGUGAcaacu.......aaucgaAGUAGAGGG.AGCU
+SwBSRL2_contig_9460645/1680-1580        ..guguguggguugcacccucccugcacacACGUUAAUGUGGCUGUAUGUg........ugGGUGCac............acaCAUACACUAGUCCCAAGCCUAG...............GUAAA..................CACAGAGGG.AUUG
+scaffold27953_1_MH0009/8240-8318        ......uuuuggggacuuacguucccaaaaACUAUAAUCUUGC-------...........CAUCG.................------UCAGUUCCAAGCCUGA...............GUGAGa...............aaAAGAGAGGA.UAGU
+ASHM485B_GQ8TDHF02IP8ND/61-137          .........ccuacccuuaauuggguagguACACCAAUGUAGC-------...........UCAGA.................------CCUGUGACAAGCCAGG...............CUAGAaa..............aaUACAGAGUC.GUGU
+GYQO9XB02HOH87/368-309                  ------------------------------UUUUUAAUGAAGCCACAGU-...........GAUC-.................ACUGUGAGGGUCCUAAGCCCCU...............AA---..................UUCAGAAGG.GAAA
+4443754.3.17435/500-410                 .......caguucagacggcuugagugagaUGUGUAAUGCUACUAUGAU-...........AGCACauu..........gcgaAUCAUACGGGUUGCAAGUCCCU...............CA---..................AGCAGAGCA.CACG
+ASMM170b_GM97KZC01AYBJA/163-258         ggacagggguuauagccaaacuccuguaccAGCGUAAUGUAGCCUAGUCC..........gACUUU................gGACUAGAGGGUUCACAGCCCCU...............UUAA-..................UACAGAUGA.CGCA
+SRR014584.94163/133-201                 .............ggccggucaguccggccCUCGUAAUGCGGC-------...........GAA--.................------CCGGUGGCAAGCCCGG...............UGGUGg................aCGCAGAGCC.AGAG
+scaffold52668_1_O2.UC-22/255-347        .......aagacuucccucucuaagguuuuAUUGUAAUCA-GC-------...........CGAUG.................------CUCGUCCCAAGCCGAGaaauu.....cuaacAUUUGuuag.........aagaaUUGAGAGGG.CAAU
+JCVI_SCAF_1096627451301/1288-1218       ------------------------------ACUCUAAACCAGCCGGAUAC...........AAUAAauu...........gggU-UCCGAGAGUUCAAAGCCUCU...............ACAAA.................uUGGUGAUGA.GAGU
+ASHM485B_GQ8TDHF02JLGHV/207-148         ------------------------------UUGGUAACCUAGCCUCA---...........CUC--.................--UGAGAGCGUCUCAAGCCGUC...............UGUAAa................uUAGGGAGAG.CCAA
+NC_009746.1/4371-4433                   ------------------------------UAUGAAAUGCUACUUCGUA-...........UUUA-.................UGCGGAAAGGUCACAAGUCCUU...............GCAAA..................AGCAGAGUG.UAUA
+NZ_ABGO01000052.1/11683-11594           ...cgcggccccgagaaaccggggccgcggCCCUUAACCCGACCGCCCC-...........ACGGU.................GGGGCGCUGGUGACAAGUCCAG...............CAA--..................CGGGGAGUCaAGGG
+SwRhRL2b_contig_1789411/56325-56231     ..............................GUG-UAAUGUAGCUUAGUUAa........cuAAUAUgg.............uuAGCUGAUCAGUUCAAAGCCUGAgaaagu...aauuacAGUUUuguaau.....gaacaaaUACAGAUGA.-CAC
+ASMM170b_GJFD58A01C3S98/272-345         ------------------------------GUUAUAAAUGAGCUUAACGUcu.......gcACAUCggc...........aagCGUUAAACAGUUGCAAGCCUGU...............UAAA-..................UCAUGAGCA.UAAC
+RUMENNODE_4329557_1/14799-14867         ..............gagagcaacaacucucUUCUUAAUCUAAC-------...........CAACG.................------AAGGUCGCAAGUCCUU...............GUGUA.................aUAGAGAGCG.AGAA
+SRS013476_C3081802/1415-1305            ....acgaaaccaccaucguuucguagccaCCUGUAAAGCUGC-------...........CGCUG.................------GGUGUCUCAAGCCACCagacuaacaaagcauAGCACaaaugcguucguuagugaAGCUGAGAG.CAGG
+SRS015797_C2623035/722-621              .gaagacaagcgcuuuuguuuuuuacguuuAUCUUAAUCUAGCCA-----...........GUCCC................aA---UGUCGGUCCUAAGCCCGAaau........gcguUCAUUacgu..........auaaUAGAGAAGG.GGGU
+SRR014584.142444/75-3                   .........ccggcgcaccccgacgccgggCCGGUAAUGCGGC-------...........AAG--.................------CCAGUUGCAAGCCUGG...............CGGCGg................aCGCAGAGCA.ACGG
+ASMM170b_GM97KZC01CV9KT/347-403         ------------------------------UUAGUAACCCAACUC-----...........AAUCA.................A---GAGCCGUUGCAAGUCGGC...............AUAAA..................UGGGGAGCA.CUAA
+SRS011271_WUGC_scaffold_37363/6725-6664 ------------------------------GUUAUAAAGCUACCAGUCU-...........GCAA-.................AGAUUGACAGUUCCAAGUCUGU...............UAAA-..................AGCUGAGGA.UAAC
+scaffold72334_1_MH0025/1408-1473        ------------------------------UGUUUAAUGCGGCCGCCCCG..........cCUC-G................cGGAGCGUUAGUUCCAAGCCUAA...............AAGAA..................CGCAGAGGU.GACA
+SRS052027_LANL_scaffold_25557/2473-2550 ................ggggaguaauccccUUCCUAAUGC-AGUAGC---...........UAAAA.................--GCUAGAGGUCGCAACUCCUC...............AUAAAac.............auaUGCAGAGCG.GGAA
+SRS019219_WUGC_scaffold_74142/4071-3990 ..............................CAUCUAAUGUAACC--UACAgc......cucAAAGGccacg.......aggagGUACGGCUGGUCCCAAGUCCAG...............AAUGAaa..............gaUACAGAGGG.GAUG
+ASLM20b_GJMWM0N02F51JQ/290-211          ......cgguucgauucuggcucgaccgaaUCUCUAAUGC-GC-------...........CGAUG.................C-----UGGGUCCCAAGUCCCA...............GAGGAag..............aaAGCAGAGGG.GAGA
+4443754.3.34476/38-131                  .......caguuaagacggcuugagugagaUUGUUAAUGCUACUGCCUGGu........gcAUAUUgc............aucCUGGCAAAGGUCACAAGUCCUU...............AAA--..................AGCAGAGUG.GCAA
+2013431667/372-295                      ..............gccuggaaagacaggcACGUUAAACUAAC-------...........UGUA-.................------GAGGUCCAAAGUCCUCggc.........ugcAAACGca.............gaaUAGUGAUGG.GCGU
+SRS052227_C2927685/4092-4020            ...............guguuuuuguagcauUACCUAAUCCAGCCAU----...........ACCAC.................A--AUGACAGUCCUAAGCCUGU...............UAAA-..................UGGAGAAGG.GGUA
+SRS062544_C2989971/992-911              .......ggcccgggcuuuguccgggcuuuUUCGUAAACUCACUACC---...........AUUU-.................--GGUAACGGUUGCAAGUCCGU...............AAAAA..................GAGCGAGCA.CGAA
+4443754.3.35548/220-150                 ------------------------------UUGUUAAUGCAGCUUGCUAGug.......caAUAUGg..............caCGGCAAUAGGUCUAAAGCCCUU...............AAA--..................UGCAGAUAGgACAA
+GQKUMWE02FP3PF/168-91                   ............gggcgggaaagccgcccuGGUGUAAAGUAGCCACCG--...........UUU--.................-CGGUGCAGGUUGCAAGCCCUG...............GUAAA..................UACUGAGCG.AGCC
+ASMM170b_contig02591/623-712            .caagccuaguaagacaacugaacggcuugCGCUUAAGCCUACUGGC---...........AAUGA.................A-GUCAGCUGUUACAAGUCAGC...............ACAAA..................AGGUGAGUA.AGCA
+SRS043411_WUGC_scaffold_17180/295-360   ------------------------------GUAUUAAACUAACUUGCAC-...........AUCAGa...............gGUGUAAGCGGUUACAAGUCCGC...............AUAAA..................UAGUGAGUA.GUAC
+ASHM485B_GI4DNEO01C4OIR/4-66            ------------------------------UCGUUAAACUAACUACUGU-...........GGAU-.................GCAGUAACUGUUGUAAGUCAGU...............ACAAA..................UAGUGAACA.ACGA
+scaffold26425_2_MH0084/99-161           ------------------------------GGUGUAACACGGCUACGG--...........UUUAA.................-CCGUAAAGGUUCAAAGUCCUU...............GUAAA.................cUGUGGAUGA.CACC
+#=GC RF                                 ..............................xxxxxxxxxxxxxxxxxxxx...........xxxxx.................xxxxxxxxxxxxxxxxxxxxxx...............xxxxx..................xxxxxxxxx.xxxx
+#=GC SS_cons                            ..............................((((---((((BB<<<<<<_..........._____.................>>>>>><<<__AAA__bb_>>>...............,,,,,..................))))--aaa.))))
+//
