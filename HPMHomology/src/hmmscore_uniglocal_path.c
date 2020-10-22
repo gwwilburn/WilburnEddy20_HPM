@@ -10,6 +10,7 @@
 #include "esl_msa.h"
 #include "esl_msafile.h"
 #include "esl_sq.h"
+#include "esl_vectorops.h"
 
 #include "p7_config.h"
 #include "hmmer.h"
@@ -107,6 +108,10 @@ int main(int argc, char *argv[]){
    if ((status = esl_msafile_Read(afp, &msa))                            != eslOK) esl_fatal ("Failed to read MSA");
    esl_msafile_Close(afp);
 
+   /* check to make sure MSA is digital and has RF line */
+   if (! (msa->flags & eslMSA_DIGITAL)) esl_fatal("ERROR: need a digital msa");
+   if (msa->rf == NULL)                 esl_fatal("ERROR: msa lacks an RF line");
+
    /* open score file */
    if ((score_fp = fopen(scorefile, "w")) == NULL) esl_fatal("Failed to open output hmm score file %s for writing", scorefile);
 
@@ -126,6 +131,7 @@ int main(int argc, char *argv[]){
    /* allocate memory for trace and match arrays */
    ESL_ALLOC(tr, sizeof(P7_TRACE *) * msa->nseq);
    ESL_ALLOC(matassign, sizeof(int) * (msa->alen + 1));
+   esl_vec_ISet(matassign, msa->alen+1, 0);
 
    /* extract match states from alignment */
    for (i=0; i < msa->alen; i++){
@@ -134,7 +140,7 @@ int main(int argc, char *argv[]){
    }
 
    /* assign traces to msa seqs */
-   p7_trace_FauxFromMSA(msa, matassign, p7_MSA_COORDS, tr);
+   p7_trace_FauxFromMSA(msa, matassign, p7_DEFAULT, tr);
 
    fprintf(score_fp, "id,logodds_path\n");
 
