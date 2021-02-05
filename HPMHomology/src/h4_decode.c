@@ -17,7 +17,7 @@
 #include "reference_dp.h"
 
 /* declaration of internal functions */
-int run_decoding(H4_PROFILE *hmm, ESL_SQ **sq, int nseq);
+int run_decoding(H4_PROFILE *hmm, ESL_SQ **sq, int nseq, char *csvfile);
 
 static ESL_OPTIONS options[] = {
    /* name          type            default env   range  togs  reqs            incomp           help                                                 docgroup */
@@ -32,7 +32,7 @@ static ESL_OPTIONS options[] = {
    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 };
 
-static char usage[]  = "[-options] <hmmfile> <seqfile>";
+static char usage[]  = "[-options] <hmmfile> <seqfile> <csv_outfile>";
 static char banner[] = "Examine hmm posterior decoding matrices";
 
 
@@ -54,6 +54,7 @@ int main(int argc, char *argv[]){
    ESL_ALPHABET     *abc           = NULL;                  /* biological alphabet                               */
    char             *hmmfile       = NULL;                  /* input HMM filepath                                */
    char             *seqfile       = NULL;                  /* input seq filepath                                */
+   char             *csvfile       = NULL;                  /* csv output ilepath                                */
    H4_HMMFILE       *hmmfp         = NULL;                  /* open input hmm file stream                        */
    H4_PROFILE       *hmm           = NULL;                  /* hmm                                               */
    ESL_SQFILE       *sqfp          = NULL;                  /* open seq file stream                              */
@@ -80,10 +81,11 @@ int main(int argc, char *argv[]){
    }
 
    /* read arguments */
-   if (esl_opt_ArgNumber(go) != 2)  cmdline_failure(argv[0], "Incorrect number of command line arguments.\n", go->errbuf);
+   if (esl_opt_ArgNumber(go) != 3)  cmdline_failure(argv[0], "Incorrect number of command line arguments.\n", go->errbuf);
 
    hmmfile   =  esl_opt_GetArg(go, 1);
    seqfile   =  esl_opt_GetArg(go, 2);
+   csvfile   =  esl_opt_GetArg(go, 3);
 
    /* if user has defined an alphabet we define it here */
    if        (esl_opt_GetBoolean(go, "--amino"))       abc = esl_alphabet_Create(eslAMINO);
@@ -112,7 +114,7 @@ int main(int argc, char *argv[]){
       sq[n+nseq] = esl_sq_CreateDigital(abc);
    }
 
-   if (run_decoding(hmm, sq, nseq) != eslOK) esl_fatal("run_decoding() failed\n");
+   if (run_decoding(hmm, sq, nseq, csvfile) != eslOK) esl_fatal("run_decoding() failed\n");
 
 
    fprintf(stdout, "hello world!\n");
@@ -133,7 +135,7 @@ int main(int argc, char *argv[]){
 
 }
 
-int run_decoding(H4_PROFILE *hmm, ESL_SQ **sq, int nseq) {
+int run_decoding(H4_PROFILE *hmm, ESL_SQ **sq, int nseq, char *csvfile) {
 
    H4_MODE        *mo      = h4_mode_Create();
    H4_REFMX       *fwd     = h4_refmx_Create(100, 100);
@@ -145,11 +147,15 @@ int run_decoding(H4_PROFILE *hmm, ESL_SQ **sq, int nseq) {
    int             k;
    float           mgk_sum, mgk_max, mgk_i;
    int             i_max;
-   //float           i_sum;
+   float           i_sum;
+   FILE           *csv_fp  = NULL;
    //int             status;
    char            errbuf[eslERRBUFSIZE];
 
    fprintf(stdout, "in run_decoding()\n");
+
+   if ((csv_fp = fopen(csvfile, "w")) == NULL) esl_fatal("Failed to open output csvfile file %s for writing", csvfile);
+   fprintf(csv_fp, "id,k,mgk_sum,i_max,mgk_max\n");
 
    /* set HMM mode to uniglocal  */
    h4_mode_SetUniglocal(mo);
@@ -189,17 +195,32 @@ int run_decoding(H4_PROFILE *hmm, ESL_SQ **sq, int nseq) {
 
             mgk_sum += mgk_i;
          }
-         fprintf(stdout, "k: %d, mgk_sum: %4f\n", k, mgk_sum);
+         fprintf(stdout, "k: %d, mgk_sum: %4f, i_max: %d, mgk_max: %.4f\n", k, mgk_sum, i_max, mgk_max);
+         fprintf(csv_fp, "%s,%d,%.4f,%d,%.4f\n", sq[n]->name, k,  mgk_sum, i_max, mgk_max);
+
       }
 
+      /*
+      for (i = 0; i < sq[n]->n; i++) {
+         i_sum = 0.;
+         for (k = 1; k <= pp->M; k++) {
+             i_sum += pp->dp[i][k * h4R_NSCELLS + h4R_MG];
+             i_sum += pp->dp[i][k * h4R_NSCELLS + h4R_IG];
+         }
+         i_sum += pp->dp[i][(pp->M+1) * h4R_NSCELLS + h4R_N];
+         i_sum += pp->dp[i][(pp->M+1) * h4R_NSCELLS + h4R_CC];
+
+         fprintf(stdout, "i: %d, i_sum: %.4f\n", i, i_sum);
+      }
+      */
       h4_refmx_Reuse(fwd);
       h4_refmx_Reuse(bck);
 
-      break;
+      //break;
 
    }
 
-
+   fclose(csv_fp);
 
    /* clean up and return */
    h4_refmx_Destroy(pp);
