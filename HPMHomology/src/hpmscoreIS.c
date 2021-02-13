@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+//#include <omp.h>
 
 /* easel includes */
 #include "easel.h"
@@ -32,8 +33,10 @@
 
 /* declaration of internal functions */
 int   Calculate_IS_scores(HPM *hpm, H4_PROFILE *hmm, ESL_SQ **sq, ESL_RANDOMNESS *rng, HPM_IS_SCORESET *hpm_is_ss, ESL_MSA **msa, char *scoreprogfile, char *aliprogfile, int start, int end, int totseq, int R, int R_batch, int A, int v, int fj);
+int   Calculate_IS_scores_OMP(HPM *hpm, H4_PROFILE *hmm, ESL_SQ **sq, ESL_RANDOMNESS *rng, HPM_IS_SCORESET *hpm_is_ss, ESL_MSA **msa, int start, int end, int totseq, int R, int R_batch, int A, int v);
 int   find_jumps(double *pr_unsorted, int r, int R_batch, ESL_SQ *sq, H4_PATH **pi, H4_PROFILE *hmm, H4_MODE *mo, float fsc);
 char *strsafe(char *dest, const char *src);
+int   inner_loop(HPM *hpm, H4_PROFILE *hmm, H4_MODE *mo, H4_REFMX *fwd, ESL_SQ *sq, ESL_RANDOMNESS *rng, ESL_SQ **sq_dummy, H4_PATH **pi_dummy, H4_PATH **out_pi, double *pr, int b, float *hpmsc_max, int R_batch, int A);
 
 static ESL_OPTIONS options[] = {
    /* name          type            default env   range  togs  reqs            incomp           help                                                 docgroup */
@@ -228,18 +231,19 @@ int main(int argc, char **argv) {
    /* initiate logsum magic */
    h4_logsum_Init();
 
-   Calculate_IS_scores(hpm, hmm, sq, rng, hpm_is_ss, &msa, scoreprogfile, aliprogfile, start, end, totseq, R, R_batch, A, v, fj);
-
+   if (TRUE) Calculate_IS_scores_OMP(hpm, hmm, sq, rng, hpm_is_ss, &msa, start, end, totseq, R, R_batch, A, v);
+   else Calculate_IS_scores(hpm, hmm, sq, rng, hpm_is_ss, &msa, scoreprogfile, aliprogfile, start, end, totseq, R, R_batch, A, v, fj);
    /* write hpm is scores to output csv */
-   if ((hpm_is_ss_fp = fopen(scorefile, "w")) == NULL) esl_fatal("Failed to open output hpm IS scoreset file %s for writing", scorefile);
-   hpm_is_scoreset_Write(hpm_is_ss_fp, hpm_is_ss);
-   fclose(hpm_is_ss_fp);
+
+   //if ((hpm_is_ss_fp = fopen(scorefile, "w")) == NULL) esl_fatal("Failed to open output hpm IS scoreset file %s for writing", scorefile);
+   //hpm_is_scoreset_Write(hpm_is_ss_fp, hpm_is_ss);
+   //fclose(hpm_is_ss_fp);
 
    /* if output msa requested, write it to output file */
    if (A) {
-      esl_msafile_Write(afp, msa, outfmt);
+//      esl_msafile_Write(afp, msa, outfmt);
       fclose(afp);
-      esl_msa_Destroy(msa);
+//      esl_msa_Destroy(msa);
    }
 
    /* clean up and return */
@@ -504,6 +508,148 @@ int Calculate_IS_scores(HPM *hpm, H4_PROFILE *hmm, ESL_SQ **sq, ESL_RANDOMNESS *
 
 }
 
+int Calculate_IS_scores_OMP(HPM *hpm, H4_PROFILE *hmm, ESL_SQ **sq, ESL_RANDOMNESS *rng, HPM_IS_SCORESET *hpm_is_ss, ESL_MSA **msa,  int start, int end, int totseq, int R, int R_batch, int A, int v)
+{
+   H4_MODE        *mo         = h4_mode_Create();           /* h4 profile hmm mode                           */
+   H4_REFMX       *fwd        = h4_refmx_Create(100, 100);  /* forward DP matrix                             */
+   ESL_SQ        ***sq_dummy;                                /* dummy sequence array for sampled alignments   */
+   ESL_SQ        **out_sq      = NULL;                      /* traces used to construct output msa (-A)      */
+   H4_PATH       ***pi_dummy;                                /* dummy path array for sampled alignments       */
+   H4_PATH       **out_pi      = NULL;                      /* paths used to construct output MSA            */
+   H4_PATH       **out_pi_thread  = NULL;                      /* paths used to construct output MSA            */
+   int             i,j;                                     /* sequence indices                              */
+   int             b;                                       /* batch index                                   */
+   int             r,s;                                     /* alignment sample indices                      */
+   int             N_batch;                                 /* total number of batches                       */
+   int             nBetter;                                 /* number of better alignments we've found       */
+   float           fsc;                                     /* forward partial log-odds score, in bits       */
+   float          *hpmsc_max;                               /* best hpm log odds S*(x, pi) for all paths     */
+   double          ld;                                      /* importance sampling log odds score S*(x)      */
+   double          ls;                                      /* log of importance sampling sum                */
+   double         *pr, *pr_unsorted;                        /* terms in importance sampling sum              */
+   int             status;                                  /* easel return code                             */
+   int             nthread   = 1;
+   int             t;                                       /* thread index */
+   //char            errbuf[eslERRBUFSIZE];                   /* buffer for easel errors                       */
+
+   if (A) {
+      /* allocate memory for paths for output MSA */
+      ESL_ALLOC(out_pi, sizeof(H4_PATH *) * totseq);
+      ESL_ALLOC(out_sq, sizeof(ESL_SQ *) * (totseq));
+   }
+
+   ESL_ALLOC(out_pi_thread, sizeof(H4_PATH *) * nthread);
+
+   /* calculate number of batches */
+   N_batch = (R / R_batch) + (R % R_batch != 0);
+   fprintf(stdout, "N_batch: %d\n", N_batch);
+
+
+   /* allocate space for dummy trace  and sequence arrays */
+   ESL_ALLOC(sq_dummy, sizeof(ESL_SQ **) * nthread);
+   ESL_ALLOC(pi_dummy, sizeof(H4_PATH **) * nthread);
+   for (t = 0; t < nthread; t++) {
+      ESL_ALLOC(sq_dummy[t], sizeof(ESL_SQ *) * R_batch);
+      ESL_ALLOC(pi_dummy[t], sizeof(H4_PATH *) * R_batch);
+
+      for (r = 0; r < R_batch; r++) {
+         sq_dummy[t][r] = esl_sq_CreateDigital(hmm->abc);
+         pi_dummy[t][r] = h4_path_Create();
+      }
+      ESL_ALLOC(hpmsc_max, sizeof(float) * nthread);
+   }
+
+   /* allocate array to store terms in importance sampling sum */
+   ESL_ALLOC(pr, R*sizeof(double));
+   ESL_ALLOC(pr_unsorted, R*sizeof(double));
+   esl_vec_DSet(pr, R, 0.0);
+   esl_vec_DSet(pr_unsorted, R, 0.0);
+
+   /* set HMM mode to uniglocal  */
+   h4_mode_SetUniglocal(mo);
+
+   /* outer loop over sequences */
+   for (i=start; i < end; i++) {
+
+      nBetter = 0;
+
+      /* index for score set: must start at 0 */
+      j=i-start;
+
+      /* for getting optimal path under hpm */
+      if (A) {
+         esl_vec_FSet(hpmsc_max, nthread, -eslINFINITY);
+         out_sq[j] = esl_sq_CreateDigital(hmm->abc);
+         esl_sq_Copy(sq[i], out_sq[j]);
+         /* temporary: get rid of soon! */
+         out_pi[j] =  h4_path_Create();
+         }
+
+      /* set profile length */
+      h4_mode_SetLength(mo, sq[i]->n);
+
+      /* run forward algorithm */
+      h4_reference_Forward(sq[i]->dsq, sq[i]->n, hmm, mo, fwd, &fsc);
+      /* prep for sampling paths */
+
+      esl_vec_DSet(pr, R, 0.0);
+      esl_vec_DSet(pr_unsorted, R, 0.0);
+
+
+      for (b = 0; b < N_batch; b++) {
+         //t = omp_get_thread_num();a
+         t = 0;
+         fprintf(stdout, "b: %d, t: %d\n",b, t);
+
+         //inner_loop(hpm, hmm, mo, fwd, sq[i], rng, sq_dummy[t], pi_dummy[t], &out_pi_thread[t], pr, b, &hpmsc_max[t], R_batch, A);
+         //h4_path_DumpAnnotated(stdout, out_pi_thread[t], hmm, mo, sq[i]->dsq);
+      }
+
+      for(r = 0; r < R; r++) {
+         fprintf(stdout, "%d %.4f\n", r, pr[r]);
+      }
+
+      //for (t = 0; t < nthread; t++) h4_path_Reuse(out_pi_thread[t]);
+
+   }
+
+   /* clean up and return */
+   if (A) {
+      for (j=0; j<totseq; j++) {
+         esl_sq_Destroy(out_sq[j]);
+         h4_path_Destroy(out_pi[j]);
+      }
+      for(t=0; j < nthread; t++) h4_path_Destroy(out_pi_thread[t]);
+      free(out_sq);
+      free(out_pi);
+      free(out_pi_thread);
+   }
+
+   h4_refmx_Destroy(fwd);
+   h4_mode_Destroy(mo);
+   for (t = 0; t < nthread; t++) {
+      for (r = 0; r < R_batch; r++) {
+         esl_sq_Destroy(sq_dummy[t][r]);
+         h4_path_Destroy(pi_dummy[t][r]);
+      }
+      free(sq_dummy[t]);
+      free(pi_dummy[t]);
+   }
+
+   free(hpmsc_max);
+   free(sq_dummy);
+   free(pi_dummy);
+   free(pr);
+   free(pr_unsorted);
+
+   return eslOK;
+   ERROR:
+      return status;
+
+}
+
+
+
 /* Function: find_jumps()
  *
  * Purpose:  Poor importance sampling often shows sudden "jumps" in bitscore
@@ -668,3 +814,64 @@ char *strsafe(char *dest, const char *src)
 
    return dest;
 }
+
+
+/* YOU ARE HERE */
+/* WHY don't I need to have **pr as an argument instead? */
+int inner_loop(HPM *hpm, H4_PROFILE *hmm, H4_MODE *mo, H4_REFMX *fwd, ESL_SQ *sq, ESL_RANDOMNESS *rng, ESL_SQ **sq_dummy, H4_PATH **pi_dummy, H4_PATH **out_pi, double *pr, int b, float *hpmsc_max, int R_batch, int A) {
+
+   float           hmmsc_ld;                                /* hmm log odds S(x,pi), in bits                 */
+   float           hpmsc_ld;                                /* hpm unnormalized log odds S*(x, pi), in bits  */
+   int s;
+   int r;
+   //H4_PATH        *out_pi_ret = NULL;
+   float           hpmsc_max_ret = *hpmsc_max;
+
+   fprintf(stdout, "hpmsc_max_ret: %.4f\n", hpmsc_max_ret);
+
+
+   /* inner loop 1: sample alignments from HMM */
+   for (s = 0;  s < R_batch; s++) {
+
+      /* calculte overall sample number */
+      r = b*R_batch + s;
+
+      /* copy sequence into dummy array */
+      esl_sq_Copy(sq, sq_dummy[s]);
+
+      /* get stochastic traceback */
+      h4_reference_StochasticTrace(rng, NULL, hmm, mo, fwd, pi_dummy[s]);
+
+      h4_path_Score(pi_dummy[s], sq->dsq, hmm, mo, &hmmsc_ld);
+      pr[r] -= (hmmsc_ld / eslCONST_LOG2R);
+
+      hpm_scoreops_ScorePath(pi_dummy[s], sq->dsq, hpm, mo, &hpmsc_ld, NULL, NULL, NULL, NULL);
+      pr[r] -= (hmmsc_ld / eslCONST_LOG2R);
+
+      fprintf(stdout, "\t %d %.4f\n", r, pr[r]);
+
+      /* now handle alignment */
+      /* YOU ARE HERE */
+      if (A && hpmsc_ld > hpmsc_max_ret)
+      {
+         fprintf(stdout, "hpmsc: %.4f, hpmsc_max: %.4f\n", hpmsc_ld, hpmsc_max_ret);
+         /* YOU ARE HERE! */
+         /* THIS IS CAUSING MEMORY LEAKS */
+         if (*(out_pi)) h4_path_Destroy(*(out_pi));
+         memcpy(*out_pi, h4_path_Clone(pi_dummy[s]), sizeof(H4_PATH));
+         hpmsc_max_ret = hpmsc_ld;
+      }
+
+
+   }
+
+   *hpmsc_max = hpmsc_max_ret;
+
+   for (s = 0; s < R_batch; s++){
+      esl_sq_Reuse(sq_dummy[s]);
+      h4_path_Reuse(pi_dummy[s]);
+   }
+
+   return eslOK;
+}
+
