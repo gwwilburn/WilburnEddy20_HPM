@@ -65,6 +65,7 @@ hmmalign_uniglocal: hmmalign_uniglocal.c
 	${CC} ${CFLAGS} -o hmmalign_uniglocal ${IFLAGS} ${LFLAGS} hmmalign_uniglocal.c ${SLIBS} ${LIBS}
 
 hpmscoreIS: hpmscoreIS.c
+	#${CC} ${CFLAGS} -o hpmscoreIS -fopenmp ${IFLAGS} ${LFLAGS} hpmscoreIS.c hpm.o hpmfile.o potts.o pottsfile.o hpm_scoreops.o hpm_scoreset.o h4_path_hpm.o h4_pathalign.o ${SLIBS} ${LIBS}
 	${CC} ${CFLAGS} -o hpmscoreIS ${IFLAGS} ${LFLAGS} hpmscoreIS.c hpm.o hpmfile.o potts.o pottsfile.o hpm_scoreops.o hpm_scoreset.o h4_path_hpm.o h4_pathalign.o ${SLIBS} ${LIBS}
 
 hpmscore_path: hpmscore_path.c

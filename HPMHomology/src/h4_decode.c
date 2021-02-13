@@ -147,7 +147,7 @@ int run_decoding(H4_PROFILE *hmm, ESL_SQ **sq, int nseq, char *csvfile) {
    int             k;
    float           mgk_sum, mgk_max, mgk_i;
    int             i_max;
-   float           i_sum;
+   //float           i_sum;
    FILE           *csv_fp  = NULL;
    //int             status;
    char            errbuf[eslERRBUFSIZE];
